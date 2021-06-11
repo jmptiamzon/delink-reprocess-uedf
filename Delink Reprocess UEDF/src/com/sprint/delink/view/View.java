@@ -90,7 +90,7 @@ public class View extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent event) {
 		
 		if (event.getSource() == submitBtn) {
-			
+			controller.runApp(textAreaField.getText());
 		}
 		// TODO Auto-generated method stub
 		
