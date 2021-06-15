@@ -53,7 +53,7 @@ public class Model {
 					"SELECT HDR.FILE_NAME,DET.unique_sequence_number,DET.record_id,DET.MEID_HEX,DET.MEID_DECIMAL,DET.IMEI_DECIMAL,TOTAL_DEVICE_COUNT,DEVICE_COUNT " + 
 					"FROM EDF.EDF_HEADER_STG_INT HDR,edf.edf_details_stg_int DET " + 
 					"WHERE HDR.unique_sequence_number = DET.unique_sequence_number " + 
-					"AND HDR.FILE_NAME IN (" + parameters + ") and DET.error_description is null "
+					"AND HDR.FILE_NAME IN (" + parameters + ") and DET.error_description is not null "
 			);
 			
 			ResultSet rs = statement.executeQuery();
@@ -63,12 +63,12 @@ public class Model {
 				recordId += rs.getString(3) + ",";
 				
 				queries.add(
-						"UPDATE EDF.EDF_HEADER_STG_INT " + 
-						"SET TOTAL_DEVICE_COUNT = " + rs.getString(7) + ", DEVICE_COUNT = " + rs.getString(8) + ", " + 
-						"STATUS = 'NEW', ERROR_DESCRIPTION = NULL " + 
-						"WHERE FILE_NAME = '" + rs.getString(1) + "' " + 
-						"AND UNIQUE_SEQUENCE_NUMBER = '" + rs.getString(2)  + "' "	+
-						"-- 1 row"
+						"UPDATE EDF.EDF_HEADER_STG_INT\n" + 
+						"SET TOTAL_DEVICE_COUNT = " + rs.getString(7) + ", DEVICE_COUNT = " + rs.getString(8) + ",\n" + 
+						"STATUS = 'NEW', ERROR_DESCRIPTION = NULL\n" + 
+						"WHERE FILE_NAME = '" + rs.getString(1) + "'\n" + 
+						"AND UNIQUE_SEQUENCE_NUMBER = '" + rs.getString(2)  + "'\n"	+
+						"-- 1 row\n"
 				);
 			}
 			
@@ -90,26 +90,26 @@ public class Model {
 			}
 			
 			queries.add(
-					"UPDATE EDF.EDF_DETAILS_STG_INT " + 
-					"SET PRL = NULL, " + 
-					"AKEY = NULL, " + 
+					"UPDATE EDF.EDF_DETAILS_STG_INT\n" + 
+					"SET PRL = NULL,\n" + 
+					"AKEY = NULL,\n" + 
 					"AKEY_CHECKSUM = NULL, " + 
-					"PUC1 = NULL, " + 
-					"PUC2 = NULL, " + 
-					"PIN1 = NULL, " + 
-					"PIN2 = NULL, " + 
-					"KI = NULL, " + 
-					"ACC_UICC = NULL, " + 
-					"ADMIN1 = NULL, " + 
-					"SF_EQUIPMENT_ID = NULL, " + 
-					"IMSI_UICC = NULL, " + 
-					"STATUS = 'NEW', " + 
-					"ERROR_DESCRIPTION = NULL " + 
-					"WHERE UNIQUE_SEQUENCE_NUMBER IN (SELECT UNIQUE_SEQUENCE_NUMBER " + 
-					"FROM EDF.EDF_HEADER_STG_INT " + 
-					"WHERE FILE_NAME IN ( " + parameters + ") " + 
-					"and unique_sequence_number IN (" + seqNo + ")) " +
-					"-- " + count + " rows"
+					"PUC1 = NULL,\n" + 
+					"PUC2 = NULL,\n" + 
+					"PIN1 = NULL,\n" + 
+					"PIN2 = NULL,\n" + 
+					"KI = NULL,\n" + 
+					"ACC_UICC = NULL,\n" + 
+					"ADMIN1 = NULL,\n" + 
+					"SF_EQUIPMENT_ID = NULL,\n" + 
+					"IMSI_UICC = NULL,\n" + 
+					"STATUS = 'NEW',\n" + 
+					"ERROR_DESCRIPTION = NULL\n" + 
+					"WHERE UNIQUE_SEQUENCE_NUMBER IN (SELECT UNIQUE_SEQUENCE_NUMBER\n" + 
+					"FROM EDF.EDF_HEADER_STG_INT\n" + 
+					"WHERE FILE_NAME IN (" + parameters + ")\n" + 
+					"and unique_sequence_number IN (" + seqNo + "))\n" +
+					"-- " + count + " rows\n"
 			);
 			
 			conn.close();
