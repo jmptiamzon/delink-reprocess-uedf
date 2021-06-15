@@ -8,23 +8,30 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 public class Model {
 	
-	public int getEdfErrorCount(String parameters) {
-		int count = 0;
+	public String getEdfErrorCount(String parameters) {
+		String filename = "";
 		
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 			Connection conn = 
 					DriverManager.getConnection("", "", "");
-			// AND STATUS='ERROR'")
-			PreparedStatement statement = conn.prepareStatement("SELECT COUNT(1) FROM edf.edf_inbound_history WHERE FILENAME in ("+ parameters + ")");
-			//statement.setString(1, parameters);
+			
+			PreparedStatement statement = conn.prepareStatement("SELECT FILENAME FROM edf.edf_inbound_history WHERE FILENAME in ("+ parameters + ") AND STATUS IN ('ERROR', 'REJECT')");
 			
 			ResultSet rs = statement.executeQuery();
 			
 			while (rs.next()) {
-				count = rs.getInt(1);
+				filename += "'" + rs.getString(1) + "',";
+			}
+			
+			if (!filename.equals("")) {
+				filename = filename.substring(0, filename.length() - 1);
 			}
 			
 		} catch (ClassNotFoundException e) {
@@ -35,7 +42,7 @@ public class Model {
 			
 		}
 
-		return count;
+		return filename;
 	}
 	
 	public List<String> getQueryToWrite(String parameters) {
@@ -48,6 +55,15 @@ public class Model {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 			Connection conn =
 					DriverManager.getConnection("", "", "");
+			
+			count = parameters.contains(",") ? parameters.split(",").length : 0;
+			
+			queries.add(
+					"UPDATE EDF.EDF_INBOUND_HISTORY\n" + 
+					"SET STATUS = 'STAGED'\n" + 
+					"WHERE FILENAME IN (" + parameters + ")\n" +
+					"-- " + count + " rows"
+			);
 			
 			PreparedStatement statement = conn.prepareStatement(
 					"SELECT HDR.FILE_NAME,DET.unique_sequence_number,DET.record_id,DET.MEID_HEX,DET.MEID_DECIMAL,DET.IMEI_DECIMAL,TOTAL_DEVICE_COUNT,DEVICE_COUNT " + 
@@ -111,6 +127,24 @@ public class Model {
 					"and unique_sequence_number IN (" + seqNo + "))\n" +
 					"-- " + count + " rows\n"
 			);
+			
+			
+			// write errors in excel
+			
+			statement = conn.prepareStatement(
+					"SELECT * FROM EDF.EDF_DETAILS_STG_INT WHERE UNIQUE_SEQUENCE_NUMBER in (" + seqNo + ")"
+			);
+			
+			rs = statement.executeQuery();
+			
+			//Workbook workbook = new XSSFWorkbook();
+			//Sheet sheet = workbook.createSheet("Errors");
+			
+			while(rs.next()) {
+				for (int ctr = 0; ctr < 76; ctr++) {
+					
+				}
+			}
 			
 			conn.close();
 			

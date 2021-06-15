@@ -27,8 +27,9 @@ public class Controller {
 		}
 		
 		param = param.substring(0, param.length() - 1);
+		param = model.getEdfErrorCount(param);
 		
-		if (model.getEdfErrorCount(param) == 0) {
+		if (param.equals("")) {
 			JOptionPane.showMessageDialog(null, "Filename/s not found.");
 		
 		} else {
